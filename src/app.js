@@ -1,5 +1,6 @@
 import { STICKER_SIZE, MAX_OUTLINE, fitRect, outlineOffsets, outlineColor, encodeUnderLimit } from "./sticker.js";
 import { MAX_SECONDS, clampTrim, clipToWav } from "./audio.js";
+import { createStatus } from "./status.js";
 import { TEXT, pickLang } from "./i18n.js";
 import { createPlayer } from "./player.js";
 
@@ -21,6 +22,7 @@ function applyLang(lang) {
   for (const el of document.querySelectorAll("[data-t-label]")) el.setAttribute("aria-label", t(el.dataset.tLabel));
   for (const b of document.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
   if (state.recorder) $("record").textContent = t("stop");
+  status.refresh();
   try { localStorage.setItem("lang", lang); } catch { /* private mode */ }
 }
 
@@ -54,9 +56,10 @@ async function loadImage(file) {
   try {
     img = await createImageBitmap(file);
   } catch {
-    if (seq === state.imageSeq) say(t("imageError"));
+    if (seq === state.imageSeq) status.say("imageError");
   }
   if (seq !== state.imageSeq) return;
+  if (img) status.clear("imageError", "needImage");
   state.image = img;
   drawSticker($("preview"));
 }
@@ -77,12 +80,13 @@ async function loadAudio(blob) {
     $("start").max = $("end").max = String(buf.duration.toFixed(1));
     $("duration").textContent = `(${buf.duration.toFixed(1)} s)`;
     $("play").disabled = false;
+    status.clear("audioError", "micError");
   } catch {
     if (seq !== state.audioSeq) return;
     player.stop();
     state.audio = null;
     $("play").disabled = true;
-    say(t("audioError"));
+    status.say("audioError");
   } finally {
     ctx.close();
   }
@@ -134,7 +138,7 @@ async function toggleRecord() {
   } catch {
     stream?.getTracks().forEach((tr) => tr.stop());
     lock(false);
-    say(t("micError"));
+    status.say("micError");
     return;
   } finally {
     btn.disabled = false;
@@ -152,15 +156,15 @@ async function toggleRecord() {
     await loadAudio(new Blob(chunks, { type: rec.mimeType }));
   };
   rec.start();
+  status.clear("micError");
   rec.limit = setTimeout(() => rec.state === "recording" && rec.stop(), MAX_SECONDS * 1000);
   btn.classList.add("recording");
   btn.textContent = t("stop");
 }
 
 // ---------- output ----------
-function say(msg) {
-  $("message").textContent = msg;
-}
+// Keeps text keys, so the message follows a language switch and clears once fixed.
+const status = createStatus((text) => { $("message").textContent = text; }, t);
 
 function link(id, blob, name) {
   const url = URL.createObjectURL(blob);
@@ -184,13 +188,13 @@ async function build() {
 }
 
 async function makeFiles() {
-  say("");
+  status.say();
   // Old links point at revoked URLs: hide them until new ones exist.
   $("results").hidden = true;
   state.urls.forEach((u) => URL.revokeObjectURL(u));
   state.urls = [];
   if (!state.image) {
-    say(t("needImage"));
+    status.say("needImage");
     return;
   }
 
@@ -199,12 +203,12 @@ async function makeFiles() {
   drawSticker(canvas);
   const res = await encodeUnderLimit((q) => new Promise((ok) => canvas.toBlob(ok, "image/webp", q)));
   if (!res) {
-    say(t("imageError"));
+    status.say("imageError");
     return;
   }
   const notes = [];
-  if (!res.webp) notes.push(t("noWebp"));
-  else if (!res.fits) notes.push(t("tooBig"));
+  if (!res.webp) notes.push("noWebp");
+  else if (!res.fits) notes.push("tooBig");
   const stickerName = res.webp ? "sticker.webp" : "sticker.png";
   link("dlSticker", res.blob, stickerName);
   $("dlSticker").lastChild.textContent = ` ${stickerName} (${Math.round(res.blob.size / 1024)} KB)`;
@@ -213,7 +217,7 @@ async function makeFiles() {
   $("dlSound").hidden = true;
   $("soundPreview").hidden = true;
   const sel = state.audio && selection();
-  if (sel && sel.end - sel.start < 0.1) notes.push(t("emptySelection"));
+  if (sel && sel.end - sel.start < 0.1) notes.push("emptySelection");
   if (sel && sel.end - sel.start >= 0.1) {
     const { start, end } = sel;
     const wav = new Blob([clipToWav(channels(state.audio), state.audio.sampleRate, start, end)], { type: "audio/wav" });
@@ -228,7 +232,7 @@ async function makeFiles() {
   $("shareNote").hidden = share.hidden;
   share.onclick = () => navigator.share({ files }).catch(() => {});
   $("results").hidden = false;
-  say(notes.join(" "));
+  status.say(...notes);
 }
 
 // ---------- wiring ----------

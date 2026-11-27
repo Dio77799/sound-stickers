@@ -49,12 +49,13 @@ npm test
 | File | What it does |
 |---|---|
 | `src/sticker.js` | Sticker geometry, outline offsets and the "fit under 100 KB" encoder loop |
+| `src/status.js` | The status line: clears a message once its problem is fixed, follows the language |
 | `src/audio.js` | Trim, mono mix, resample, fade and WAV encoding |
 | `src/player.js` | Plays the sound selection, one at a time, and stops it on a second press |
 | `src/app.js` | The page: file inputs, recording, preview, download and share |
 | `src/i18n.js` | English and Spanish text |
 
-`sticker.js`, `audio.js` and `player.js` don't touch the DOM, so the tests run them in Node.
+Only `app.js` touches the DOM, so the tests run the other modules in Node.
 
 ## Known limits
 
