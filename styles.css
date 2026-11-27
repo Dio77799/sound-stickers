@@ -29,6 +29,10 @@ h3 { font-size: 1rem; margin: 16px 0 4px; }
 .or { color: var(--muted); margin: 8px 0; }
 .hint { color: var(--muted); font-size: .9rem; }
 input[type="number"] { width: 6em; }
+input[type="color"] {
+  inline-size: 44px; block-size: 44px; padding: 2px; vertical-align: middle;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer;
+}
 button, .lang button {
   font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
   background: var(--card); color: var(--text); cursor: pointer;

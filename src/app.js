@@ -26,14 +26,14 @@ function drawSticker(canvas) {
   const r = fitRect(img.width, img.height);
   const width = $("outline").checked ? Math.min(MAX_OUTLINE, Number($("outlineWidth").value)) : 0;
   if (width > 0) {
-    // White silhouette of the image, stamped around a circle, then the image on top.
+    // Silhouette of the image in the outline color, stamped around a circle, then the image on top.
     const sil = document.createElement("canvas");
     sil.width = STICKER_SIZE;
     sil.height = STICKER_SIZE;
     const s = sil.getContext("2d");
     s.drawImage(img, r.x, r.y, r.w, r.h);
     s.globalCompositeOperation = "source-in";
-    s.fillStyle = "#fff";
+    s.fillStyle = $("outlineColor").value;
     s.fillRect(0, 0, STICKER_SIZE, STICKER_SIZE);
     for (const [dx, dy] of outlineOffsets(width)) ctx.drawImage(sil, dx, dy);
   }
@@ -218,6 +218,7 @@ $("image").addEventListener("change", (e) => e.target.files[0] && loadImage(e.ta
 $("audio").addEventListener("change", (e) => e.target.files[0] && loadAudio(e.target.files[0]));
 $("outline").addEventListener("change", () => drawSticker($("preview")));
 $("outlineWidth").addEventListener("input", () => drawSticker($("preview")));
+$("outlineColor").addEventListener("input", () => drawSticker($("preview")));
 $("record").addEventListener("click", toggleRecord);
 $("play").addEventListener("click", play);
 $("build").addEventListener("click", build);

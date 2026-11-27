@@ -15,5 +15,4 @@ Thanks for helping. A few rules keep the project small and easy to review:
 
 * Animated stickers: GIF or video to animated WebP under 500 KB.
 * Export a sticker pack file for sticker apps.
-* Outline color picker.
 * OGG Opus output, so the sound arrives as a voice note.
