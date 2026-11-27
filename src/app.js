@@ -117,6 +117,13 @@ async function toggleRecord() {
     return;
   }
   player.stop();
+  // While recording (and while the browser asks for the microphone), the old clip can't be played,
+  // or the mic would record it, and a picked file would be replaced by the recording when it stops.
+  const lock = (on) => {
+    $("play").disabled = on || !state.audio;
+    $("audio").disabled = on;
+  };
+  lock(true);
   // Disabled while the browser asks for the microphone, so a second click can't open a second recorder.
   btn.disabled = true;
   let stream;
@@ -126,6 +133,7 @@ async function toggleRecord() {
     rec = new MediaRecorder(stream);
   } catch {
     stream?.getTracks().forEach((tr) => tr.stop());
+    lock(false);
     say(t("micError"));
     return;
   } finally {
@@ -140,6 +148,7 @@ async function toggleRecord() {
     state.recorder = null;
     btn.classList.remove("recording");
     btn.textContent = t("record");
+    $("audio").disabled = false;
     await loadAudio(new Blob(chunks, { type: rec.mimeType }));
   };
   rec.start();
