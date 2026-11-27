@@ -12,6 +12,8 @@
   :root { --bg: #111418; --card: #1a1f25; --text: #e8ecf0; --muted: #9aa5b1; --line: #2c333b; --accent: #0b6b60; --link: #4fd1bd; }
 }
 * { box-sizing: border-box; }
+/* A display rule like #results { display: flex } would otherwise beat the hidden attribute. */
+[hidden] { display: none !important; }
 body {
   margin: 0; font: 16px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--text);
 }
