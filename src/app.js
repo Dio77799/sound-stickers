@@ -1,10 +1,17 @@
 import { STICKER_SIZE, MAX_OUTLINE, fitRect, outlineOffsets, encodeUnderLimit } from "./sticker.js";
 import { MAX_SECONDS, clampTrim, clipToWav } from "./audio.js";
 import { TEXT, pickLang } from "./i18n.js";
+import { createPlayer } from "./player.js";
 
 const $ = (id) => document.getElementById(id);
 const state = { lang: "en", image: null, audio: null, recorder: null, urls: [], imageSeq: 0, audioSeq: 0 };
 const t = (key) => TEXT[state.lang][key] ?? key;
+// The play button turns into Stop while the selection plays. Setting data-t keeps it right after a language switch.
+const player = createPlayer(() => new AudioContext(), (playing) => {
+  const btn = $("play");
+  btn.dataset.t = playing ? "stop" : "play";
+  btn.textContent = t(btn.dataset.t);
+});
 
 // ---------- language ----------
 function applyLang(lang) {
@@ -57,10 +64,13 @@ async function loadImage(file) {
 // ---------- audio ----------
 async function loadAudio(blob) {
   const seq = ++state.audioSeq;
+  player.stop();
   const ctx = new AudioContext();
   try {
     const buf = await ctx.decodeAudioData(await blob.arrayBuffer());
     if (seq !== state.audioSeq) return;
+    // The old clip may have been started while this one was decoding.
+    player.stop();
     state.audio = buf;
     $("start").value = "0";
     $("end").value = String(Math.min(buf.duration, MAX_SECONDS).toFixed(1));
@@ -69,6 +79,7 @@ async function loadAudio(blob) {
     $("play").disabled = false;
   } catch {
     if (seq !== state.audioSeq) return;
+    player.stop();
     state.audio = null;
     $("play").disabled = true;
     say(t("audioError"));
@@ -90,14 +101,13 @@ function channels(buf) {
 }
 
 function play() {
+  if (player.playing) {
+    player.stop();
+    return;
+  }
   if (!state.audio) return;
   const { start, end } = selection();
-  const ctx = new AudioContext();
-  const src = ctx.createBufferSource();
-  src.buffer = state.audio;
-  src.connect(ctx.destination);
-  src.onended = () => ctx.close();
-  src.start(0, start, Math.max(0, end - start));
+  player.play(state.audio, start, end);
 }
 
 async function toggleRecord() {
@@ -106,6 +116,14 @@ async function toggleRecord() {
     state.recorder.stop();
     return;
   }
+  player.stop();
+  // While recording (and while the browser asks for the microphone), the old clip can't be played,
+  // or the mic would record it, and a picked file would be replaced by the recording when it stops.
+  const lock = (on) => {
+    $("play").disabled = on || !state.audio;
+    $("audio").disabled = on;
+  };
+  lock(true);
   // Disabled while the browser asks for the microphone, so a second click can't open a second recorder.
   btn.disabled = true;
   let stream;
@@ -115,6 +133,7 @@ async function toggleRecord() {
     rec = new MediaRecorder(stream);
   } catch {
     stream?.getTracks().forEach((tr) => tr.stop());
+    lock(false);
     say(t("micError"));
     return;
   } finally {
@@ -129,6 +148,7 @@ async function toggleRecord() {
     state.recorder = null;
     btn.classList.remove("recording");
     btn.textContent = t("record");
+    $("audio").disabled = false;
     await loadAudio(new Blob(chunks, { type: rec.mimeType }));
   };
   rec.start();
