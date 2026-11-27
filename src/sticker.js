@@ -5,6 +5,15 @@ export const STICKER_SIZE = 512;
 export const MARGIN = 16;
 export const MAX_STATIC_BYTES = 100 * 1024;
 export const MAX_OUTLINE = MARGIN - 2;
+export const DEFAULT_OUTLINE_COLOR = "#ffffff";
+
+/** The outline color as #rrggbb. Anything that isn't a hex color (like an empty input) gives white. */
+export function outlineColor(value) {
+  const v = String(value ?? "").trim().toLowerCase();
+  if (/^#[0-9a-f]{6}$/.test(v)) return v;
+  if (/^#[0-9a-f]{3}$/.test(v)) return "#" + [...v.slice(1)].map((c) => c + c).join("");
+  return DEFAULT_OUTLINE_COLOR;
+}
 
 /** Where to draw a w x h image so it fits inside the margin, centered, keeping its aspect ratio. */
 export function fitRect(w, h, size = STICKER_SIZE, margin = MARGIN) {

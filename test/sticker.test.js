@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fitRect, outlineOffsets, encodeUnderLimit, MARGIN, STICKER_SIZE, MAX_STATIC_BYTES } from "../src/sticker.js";
+import {
+  fitRect, outlineOffsets, outlineColor, encodeUnderLimit, MARGIN, STICKER_SIZE, MAX_STATIC_BYTES, DEFAULT_OUTLINE_COLOR,
+} from "../src/sticker.js";
 
 test("a wide image fills the width inside the margin and is centered", () => {
   const r = fitRect(1000, 500);
@@ -34,6 +36,16 @@ test("an image with no size is refused", () => {
 test("outline offsets lie on the circle and there are none for width 0", () => {
   assert.deepEqual(outlineOffsets(0), []);
   for (const [x, y] of outlineOffsets(8)) assert.ok(Math.abs(Math.hypot(x, y) - 8) < 0.02);
+});
+
+test("the outline color is the picked hex color, white by default", () => {
+  assert.equal(DEFAULT_OUTLINE_COLOR, "#ffffff");
+  assert.equal(outlineColor("#FF0080"), "#ff0080");
+  assert.equal(outlineColor(" #00ff00 "), "#00ff00");
+  assert.equal(outlineColor("#0a0"), "#00aa00");
+  for (const bad of ["", undefined, null, "red", "#12345", "#ggg000", "ff0080"]) {
+    assert.equal(outlineColor(bad), DEFAULT_OUTLINE_COLOR);
+  }
 });
 
 const fake = (sizes, type = "image/webp") => {

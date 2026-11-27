@@ -10,7 +10,7 @@ Nothing is uploaded: the image and the audio never leave your device.
 ## What it does
 
 1. **Sticker:** takes any image, fits it in 512 x 512 with the 16 px margin WhatsApp asks for, adds an optional
-   white outline (drawn inside that margin), and saves it as WebP under 100 KB (it lowers the quality step by step until it fits).
+   outline in the color you pick, white by default (drawn inside that margin), and saves it as WebP under 100 KB (it lowers the quality step by step until it fits).
 2. **Sound:** takes an audio or video file, or records from the microphone, lets you pick up to 10 seconds, and
    saves a mono WAV with a short fade so the cut doesn't click.
 3. **Share:** on phones that support it, shares both files at once; otherwise you download them. A shared image
@@ -77,8 +77,8 @@ MIT
 Crea un sticker listo para WhatsApp y el sonido corto que lo acompaña, desde el navegador. No se sube nada: la
 imagen y el audio no salen de tu dispositivo.
 
-* **Sticker:** ajusta cualquier imagen a 512 x 512 con el margen de 16 px que pide WhatsApp, con borde blanco
-  opcional, y la guarda en WebP de menos de 100 KB.
+* **Sticker:** ajusta cualquier imagen a 512 x 512 con el margen de 16 px que pide WhatsApp, con borde
+  opcional del color que elijas (blanco por defecto), y la guarda en WebP de menos de 100 KB.
 * **Sonido:** de un audio, un video o el micrófono, eliges hasta 10 segundos y se guarda en WAV.
 * **Enviar:** en WhatsApp (iPhone o WhatsApp Web) usas **Crear sticker** con el archivo del sticker, lo envías y justo
   después envías `sound.wav`.
