@@ -5,11 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="theme-color" content="#5b2eff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1240" media="(prefers-color-scheme: dark)">
   <title>Sound Stickers</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
+    <svg class="logo" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+      <path d="M6 4h16l8 8v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#fff"/>
+      <path d="M22 4v6a2 2 0 0 0 2 2h6" fill="#c6ff3d" stroke="#14121f" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M11 17v5M15 14v11M19 16v7" stroke="#14121f" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
     <h1 data-t="title">Sound Stickers</h1>
     <p data-t="tagline"></p>
     <div class="lang">
@@ -19,31 +26,39 @@
   </header>
 
   <main>
-    <section>
+    <section class="card sticker">
       <h2 data-t="step1"></h2>
-      <label class="file"><span data-t="pickImage"></span>
-        <input id="image" type="file" accept="image/*">
+      <label class="pick-image">
+        <canvas id="preview" width="512" height="512" role="img" data-t-label="preview"></canvas>
+        <span class="pick-hint">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+          <span data-t="pickImage"></span>
+        </span>
+        <input id="image" type="file" accept="image/*" required title="">
       </label>
-      <div class="row">
-        <label><input id="outline" type="checkbox" checked> <span data-t="outline"></span></label>
-        <label><span data-t="outlineWidth"></span>
+      <div class="row outline-row">
+        <label class="chip"><input id="outline" type="checkbox" checked> <span data-t="outline"></span></label>
+        <label class="chip grow"><span data-t="outlineWidth"></span>
           <input id="outlineWidth" type="range" min="0" max="14" value="8">
         </label>
-        <label><span data-t="outlineColor"></span>
+        <label class="chip"><span data-t="outlineColor"></span>
           <input id="outlineColor" type="color" value="#ffffff">
         </label>
       </div>
-      <canvas id="preview" width="512" height="512" role="img" data-t-label="preview"></canvas>
     </section>
 
-    <section>
+    <section class="card sound">
       <h2 data-t="step2"></h2>
-      <label class="file"><span data-t="pickAudio"></span>
-        <input id="audio" type="file" accept="audio/*,video/*">
-      </label>
-      <p class="or" data-t="or"></p>
-      <button id="record" type="button" data-t="record"></button>
-      <div class="row">
+      <div class="sources">
+        <label class="tile">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span data-t="pickAudio"></span>
+          <input id="audio" type="file" accept="audio/*,video/*">
+        </label>
+        <p class="or" data-t="or"></p>
+        <button id="record" class="tile" type="button" data-t="record"></button>
+      </div>
+      <div class="row trim">
         <label><span data-t="start"></span> <input id="start" type="number" min="0" step="0.1" value="0"></label>
         <label><span data-t="end"></span> <input id="end" type="number" min="0" step="0.1" value="0"></label>
         <button id="play" type="button" data-t="play" disabled></button>
@@ -51,7 +66,7 @@
       <p class="hint"><span data-t="maxNote"></span> <span id="duration"></span></p>
     </section>
 
-    <section>
+    <section class="finish">
       <h2 data-t="step3"></h2>
       <button id="build" type="button" class="primary" data-t="build"></button>
       <p id="message" role="status"></p>
@@ -62,12 +77,14 @@
         <a id="dlSound" download="sound.wav" hidden><span data-t="download"></span> sound.wav</a>
         <audio id="soundPreview" controls hidden></audio>
       </div>
-      <h3 data-t="howTo"></h3>
-      <ol>
-        <li data-t="how1"></li>
-        <li data-t="how2"></li>
-      </ol>
-      <p class="hint" data-t="how3"></p>
+      <div class="how">
+        <h3 data-t="howTo"></h3>
+        <ol>
+          <li data-t="how1"></li>
+          <li data-t="how2"></li>
+        </ol>
+        <p class="hint" data-t="how3"></p>
+      </div>
     </section>
   </main>
 
