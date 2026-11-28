@@ -60,6 +60,8 @@ async function loadImage(file) {
   }
   if (seq !== state.imageSeq) return;
   if (img) status.clear("imageError", "needImage");
+  // The preview is now empty, so don't leave the unreadable file showing as picked.
+  else $("image").value = "";
   state.image = img;
   drawSticker($("preview"));
 }
